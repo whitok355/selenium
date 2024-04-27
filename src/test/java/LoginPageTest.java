@@ -1,79 +1,49 @@
-import org.apache.commons.io.FileUtils;
-import org.junit.jupiter.api.*;
-import org.openqa.selenium.*;
-import org.openqa.selenium.chrome.ChromeDriver;
-import org.openqa.selenium.chrome.ChromeOptions;
-import org.openqa.selenium.support.ui.ExpectedConditions;
-import org.openqa.selenium.support.ui.WebDriverWait;
+import org.example.LoginPage;
+import org.junit.jupiter.api.Test;
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebElement;
 
-import java.io.File;
 import java.io.IOException;
 import java.time.Duration;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public class LoginPageTest {
-    private static String BASE_LOGIN = "MainTestUser 10002";
-    private static String BASE_PASS = "850ba79167";
-    private WebDriver driver;
-    private ChromeOptions chromeOptions;
-    private WebDriverWait wait;
-
-    @BeforeEach
-    public void setUpTest() {
-        chromeOptions = new ChromeOptions();
-        chromeOptions.addArguments("--start-maximized");
-        chromeOptions.addArguments("--incognito");
-        driver = new ChromeDriver(chromeOptions);
-
-        wait = new WebDriverWait(driver, Duration.ofSeconds(3));
-        driver.manage().window().maximize();
-    }
+public class LoginPageTest extends AbstractTest{
     @Test
-    public void createGroupTest() throws IOException {
-        driver.get("https://test-stand.gb.ru/login");
-        wait.until(ExpectedConditions.presenceOfElementLocated(
-                By.cssSelector("form#login input[type='text']"))).sendKeys(BASE_LOGIN);
-        wait.until(ExpectedConditions.presenceOfElementLocated(
-                By.cssSelector("form#login input[type='password']"))).sendKeys(BASE_PASS);
-        WebElement loginButton = driver.findElement(By.cssSelector("form#login button"));
-        loginButton.click();
-        wait.until(ExpectedConditions.invisibilityOf(loginButton));
+    public void checkAuth200() throws IOException, InterruptedException {
+        getDriver().manage().timeouts().implicitlyWait(Duration.ofSeconds(3));
+        getDriver().get(getPropertiesValue("BASE_URL"));
+        LoginPage loginPage = new LoginPage(getDriver());
 
+        loginPage.auth(getLOGIN(), getPASSWORD());
+        String title = "Hello, "+ getLOGIN();
 
-        WebElement usernameLink = wait.until(
-                ExpectedConditions.visibilityOfElementLocated(By.partialLinkText(BASE_LOGIN)));
-        assertEquals(String.format("Hello, %s", BASE_LOGIN), usernameLink.getText().replace("\n", " ").trim());
-
-
-        WebElement buttonCreate = wait.until(
-                webDriver -> webDriver.findElement(By.id("create-btn")));
-        buttonCreate.click();
-
-
-
-        WebElement fieldTitle = wait.until(
-                webDriver -> webDriver.findElement(By.xpath("//input[@type='text']")));
-        fieldTitle.sendKeys("TestSelenium");
-        WebElement fieldDescription = wait.until(
-                webDriver -> webDriver.findElement(By.xpath("//textarea[@class='mdc-text-field__input']")));
-        fieldDescription.sendKeys("Home Work 1");
-        WebElement buttonSave = driver.findElement(By.xpath("//button[@type='submit']"));
-        buttonSave.click();
-
-        WebElement headingPost = wait.until(
-                webDriver -> webDriver.findElement(By.cssSelector("h1[class='svelte-tv8alb']")));
-
-
-
-        Assertions.assertEquals("TestSelenium", headingPost.getText());
-
-        File screenshotFile = ((TakesScreenshot)driver).getScreenshotAs(OutputType.FILE);
-        FileUtils.copyFile(screenshotFile, new File("src/test/resources/screenshotPost.png"));
+        List<WebElement> hello_titles = getDriver().findElements(By.partialLinkText(title));
+        assertEquals(1, hello_titles.size());
+        assertEquals(title,hello_titles.get(0).getText());
     }
 
-    @AfterEach
-    public void tearDown() {
-        driver.quit();
+    @Test
+    public void checkAuth401() throws IOException {
+        String currentStatus = "401";
+        String currentMsg = "Invalid credentials.";
+
+        getDriver().manage().timeouts().implicitlyWait(Duration.ofSeconds(10));
+        getDriver().get(getPropertiesValue("BASE_URL"));
+
+        LoginPage loginPage = new LoginPage(getDriver());
+        loginPage.auth("", "");
+
+        WebElement status = getDriver().findElement(By.xpath("//*[contains(text(), '"+currentStatus+"')]"));
+        WebElement errMsq = getDriver().findElement(By.xpath("//*[contains(text(), '"+currentMsg+"')]"));
+
+        assertTrue(status.isDisplayed());
+        assertTrue(errMsq.isDisplayed());
+
+
+
+
     }
 }
