@@ -1,3 +1,5 @@
+import com.codeborne.selenide.Configuration;
+import com.codeborne.selenide.Selenide;
 import org.junit.jupiter.api.BeforeAll;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
@@ -9,8 +11,6 @@ import java.util.Properties;
 
 public class AbstractTest {
 
-    private static WebDriver driver;
-    private static ChromeOptions options =new ChromeOptions();
     private static Properties prop = new Properties();
     private static FileInputStream config;
     private static String LOGIN;
@@ -20,17 +20,15 @@ public class AbstractTest {
         config = new FileInputStream("src/test/resources/properties.properties");
         prop.load(config);
 
-        options.addArguments("start-maximized");
-        options.addArguments("incognito");
+        Configuration.browser = "chrome";
+        Configuration.browserSize ="1920x1080";
+        Configuration.headless = false;
+        Selenide.open("https://test-stand.gb.ru/login");
+        Configuration.pageLoadTimeout = 5000;
 
         LOGIN = prop.getProperty("login");
         PASSWORD = prop.getProperty("password");
 
-        driver = new ChromeDriver(options);
-    }
-
-    public static WebDriver getDriver() {
-        return driver;
     }
 
     public String getPropertiesValue(String propertiesName) throws IOException {

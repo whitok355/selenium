@@ -1,49 +1,42 @@
+import com.codeborne.selenide.ElementsCollection;
+import com.codeborne.selenide.SelenideElement;
 import org.example.LoginPage;
 import org.junit.jupiter.api.Test;
-import org.openqa.selenium.By;
-import org.openqa.selenium.WebElement;
 
 import java.io.IOException;
-import java.time.Duration;
-import java.util.List;
 
+import static com.codeborne.selenide.Selenide.$$x;
+import static com.codeborne.selenide.Selenide.$x;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class LoginPageTest extends AbstractTest{
     @Test
     public void checkAuth200() throws IOException, InterruptedException {
-        getDriver().manage().timeouts().implicitlyWait(Duration.ofSeconds(3));
-        getDriver().get(getPropertiesValue("BASE_URL"));
-        LoginPage loginPage = new LoginPage(getDriver());
-
-        loginPage.auth(getLOGIN(), getPASSWORD());
         String title = "Hello, "+ getLOGIN();
+        LoginPage loginPage = new LoginPage();
+        loginPage.auth(getPropertiesValue("login"), getPropertiesValue("password"));
 
-        List<WebElement> hello_titles = getDriver().findElements(By.partialLinkText(title));
+        ElementsCollection hello_titles = $$x("//div[@class='mdc-menu mdc-menu-surface']/..");
+
+        Thread.sleep(2000l);
         assertEquals(1, hello_titles.size());
-        assertEquals(title,hello_titles.get(0).getText());
+        assertEquals(title, hello_titles.get(0).getText());
     }
 
     @Test
-    public void checkAuth401() throws IOException {
+    public void checkAuth401() throws IOException, InterruptedException {
         String currentStatus = "401";
         String currentMsg = "Invalid credentials.";
 
-        getDriver().manage().timeouts().implicitlyWait(Duration.ofSeconds(10));
-        getDriver().get(getPropertiesValue("BASE_URL"));
-
-        LoginPage loginPage = new LoginPage(getDriver());
+        LoginPage loginPage = new LoginPage();
         loginPage.auth("", "");
 
-        WebElement status = getDriver().findElement(By.xpath("//*[contains(text(), '"+currentStatus+"')]"));
-        WebElement errMsq = getDriver().findElement(By.xpath("//*[contains(text(), '"+currentMsg+"')]"));
+        Thread.sleep(2000l);
+        SelenideElement status = $x("//*[contains(text(), '"+currentStatus+"')]");
+        SelenideElement errMsq = $x("//*[contains(text(), '"+currentMsg+"')]");
 
         assertTrue(status.isDisplayed());
         assertTrue(errMsq.isDisplayed());
-
-
-
-
     }
 }
