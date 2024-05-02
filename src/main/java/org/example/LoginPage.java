@@ -1,8 +1,6 @@
 package org.example;
 
 import com.codeborne.selenide.SelenideElement;
-import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.support.PageFactory;
 
 import static com.codeborne.selenide.Condition.visible;
 import static com.codeborne.selenide.Selenide.$x;

@@ -2,12 +2,8 @@ import com.codeborne.selenide.ElementsCollection;
 import org.example.LoginPage;
 import org.example.UserPage;
 import org.junit.jupiter.api.Test;
-import org.openqa.selenium.By;
-import org.openqa.selenium.WebElement;
 
 import java.io.IOException;
-import java.time.Duration;
-import java.util.List;
 import java.util.Random;
 
 import static com.codeborne.selenide.Selenide.$$x;
